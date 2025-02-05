@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Effects App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background: #111; 
+            color: white;
+        }
+        h2 { color: #ffcc00; }
+        button { 
+            padding: 10px 20px; 
+            margin: 10px; 
+            cursor: pointer; 
+            background: #ffcc00; 
+            border: none; 
+            color: black; 
+            font-weight: bold; 
+            border-radius: 5px;
+        }
+        canvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            z-index: 9999; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Seasonal Effects for Your Shopify Store</h2>
+    <p>Click the button below to enable the glowing stars effect.</p>
+
+    <button onclick="applyEffect('stars')">Enable Glowing Stars</button>
+
+    <canvas id="starsCanvas"></canvas>
+
+    <script>
+        function applyEffect(effect) {
+            fetch("/apply-effect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ effectType: effect })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error("Error:", error));
+
+            if (effect === "stars") {
+                createGlowingStars();
+            }
+        }
+
+        function createGlowingStars() {
+            const canvas = document.getElementById('starsCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let stars = [];
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 3 + 1,
+                    speed: Math.random() * 2 + 1
+                });
+            }
+
+            function animateStars() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+
+                stars.forEach(star => {
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    star.y += star.speed;
+                    if (star.y > canvas.height) star.y = 0;
+                });
+
+                requestAnimationFrame(animateStars);
+            }
+
+            animateStars();
+        }
+    </script>
+</body>
+</html>
+
