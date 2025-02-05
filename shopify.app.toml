@@ -1,0 +1,36 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "edcbac1fc76c37443c4d3c66183553b3"
+application_url = "https://serbia-lm-scientist-tower.trycloudflare.com"
+embedded = true
+name = "seasonal-effects"
+handle = "seasonal-effects-1"
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://serbia-lm-scientist-tower.trycloudflare.com/auth/callback",
+  "https://serbia-lm-scientist-tower.trycloudflare.com/auth/shopify/callback",
+  "https://serbia-lm-scientist-tower.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+dev_store_url = "cerendastanoglu.myshopify.com"
+automatically_update_urls_on_dev = true
