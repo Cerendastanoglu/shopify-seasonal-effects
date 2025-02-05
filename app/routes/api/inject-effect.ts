@@ -1,18 +1,26 @@
 import { json } from "@remix-run/node";
-import { isEffectEnabled } from "app/utils/state";
+import shopify from "../../shopify.server";
+import { authenticate } from "../../shopify.server";
 
-export async function loader() {
-  if (!isEffectEnabled) {
-    return json({ script: "" });
-  }
+export const action = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop;
+  const client = new shopify.clients.Rest({ session });
 
-  return json({
-    script: `
-      (function() {
-        var script = document.createElement('script');
-        script.src = 'https://https://v0-seasonal-effects.vercel.app//effects.js';
-        document.head.appendChild(script);
-      })();
-    `,
+  // Inject the script inside theme.liquid (Only on the home page)
+  await client.put({
+    path: "themes",
+    data: {
+      theme: {
+        liquid: `
+          {{ content_for_header }}
+          {% if template == 'index' %}
+            <script src="https://seasonal-effects.vercel.app/storefront.js"></script>
+          {% endif %}
+        `,
+      },
+    },
   });
-}
+
+  return json({ success: true });
+};

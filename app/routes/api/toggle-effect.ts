@@ -1,12 +1,27 @@
 import { json } from "@remix-run/node";
-import { isEffectEnabled, setEffectState } from "~/utils/state"; // ✅ Import fixed
+import shopify from "../../shopify.server";
+import { authenticate } from "../../shopify.server";
 
-export async function action({ request }: { request: Request }) {
-  const { enabled } = await request.json();
-  setEffectState(enabled); // ✅ Update state using function
-  return json({ success: true, enabled: isEffectEnabled });
-}
+export const action = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop;
+  const client = new shopify.clients.Rest({ session });
 
-export async function loader() {
-  return json({ enabled: isEffectEnabled });
-}
+  // Parse JSON from the request body
+  const { effectEnabled } = await request.json();
+
+  // Store effect status in Shopify Metafields
+  await client.put({
+    path: "metafields",
+    data: {
+      metafield: {
+        namespace: "seasonal_effects",
+        key: "glow_rain_enabled",
+        value: effectEnabled ? "true" : "false",
+        type: "string",
+      },
+    },
+  });
+
+  return json({ success: true });
+};
